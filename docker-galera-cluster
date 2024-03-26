@@ -1,0 +1,42 @@
+docker run -d --name mariadb-galera-0 \
+  -e MARIADB_GALERA_CLUSTER_NAME=galera_cluster \
+  -e MARIADB_GALERA_MARIABACKUP_USER=mariabackup_user \
+  -e MARIADB_GALERA_MARIABACKUP_PASSWORD=mariabackup_password \
+  -e MARIADB_ROOT_PASSWORD=supertajneheslo \
+  -e MARIADB_GALERA_CLUSTER_BOOTSTRAP=yes \
+  -e MARIADB_DATABASE=cviceni \
+  -e MARIADB_REPLICATION_USER=replica \
+  -e MARIADB_REPLICATION_PASSWORD=replica_heslo \
+  -p 3333:3306 \
+  bitnami/mariadb-galera:latest
+
+
+
+  -------------------------------------------
+
+
+  docker run -d --name mariadb-galera-1 --link mariadb-galera-0:mariadb-galera \
+  -e MARIADB_GALERA_CLUSTER_NAME=galera_cluster \
+  -e MARIADB_GALERA_CLUSTER_ADDRESS=gcomm://mariadb-galera:4567,0.0.0.0:4567 \
+  -e MARIADB_GALERA_MARIABACKUP_USER=mariabackup_user \
+  -e MARIADB_GALERA_MARIABACKUP_PASSWORD=mariabackup_password \
+  -e MARIADB_ROOT_PASSWORD=supertajneheslo \
+  -e MARIADB_REPLICATION_USER=replica \
+  -e MARIADB_REPLICATION_PASSWORD=replica_heslo \
+  -p 3334:3306 \
+  bitnami/mariadb-galera:latest
+
+
+  -----------------------------------------------
+
+
+  docker run -d --name mariadb-galera-2 --link mariadb-galera-0:mariadb-galera \
+  -e MARIADB_GALERA_CLUSTER_NAME=galera_cluster \
+  -e MARIADB_GALERA_CLUSTER_ADDRESS=gcomm://mariadb-galera:4567,0.0.0.0:4567 \
+  -e MARIADB_GALERA_MARIABACKUP_USER=my_mariabackup_user \
+  -e MARIADB_GALERA_MARIABACKUP_PASSWORD=my_mariabackup_password \
+  -e MARIADB_ROOT_PASSWORD=supertajneheslo \
+  -e MARIADB_REPLICATION_USER=replica \
+  -e MARIADB_REPLICATION_PASSWORD=replica_heslo \
+  -p 3335:3306 \
+  bitnami/mariadb-galera:latest
