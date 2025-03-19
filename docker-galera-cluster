@@ -1,51 +1,42 @@
-version: '3.8'
+docker run -d --name mariadb-galera-0 \
+  -e MARIADB_GALERA_CLUSTER_NAME=galera_cluster \
+  -e MARIADB_GALERA_MARIABACKUP_USER=mariabackup_user \
+  -e MARIADB_GALERA_MARIABACKUP_PASSWORD=mariabackup_password \
+  -e MARIADB_ROOT_PASSWORD=supertajneheslo \
+  -e MARIADB_GALERA_CLUSTER_BOOTSTRAP=yes \
+  -e MARIADB_DATABASE=cviceni \
+  -e MARIADB_REPLICATION_USER=replica \
+  -e MARIADB_REPLICATION_PASSWORD=replica_heslo \
+  -p 3333:3306 \
+  bitnami/mariadb-galera:latest
 
-services:
-  mariadb-galera1:
-    image: bitnami/mariadb-galera:latest
-    environment:
-      - MARIADB_ROOT_PASSWORD=supertajneheslo
-      - MARIADB_GALERA_CLUSTER_NAME=galera_cluster
-      - MARIADB_GALERA_MARIABACKUP_USER=backup
-      - MARIADB_GALERA_MARIABACKUP_PASSWORD=backup
-      - MARIADB_GALERA_CLUSTER_BOOTSTRAP=yes
-    ports:
-      - "3306:3306"    # Pro připojení MySQL klienta
-      # Další porty používané Galera (volitelně, pokud potřebujete přístup zvenčí):
-      #- "4567:4567"   # Replikační komunikace
-      #- "4444:4444"   # SST (State Snapshot Transfer)
-      #- "4568:4568"   # IST (Incremental State Transfer)
-    networks:
-      - galera_network
 
-  mariadb-galera2:
-    image: bitnami/mariadb-galera:latest
-    environment:
-      - MARIADB_ROOT_PASSWORD=supertajneheslo
-      - MARIADB_GALERA_CLUSTER_NAME=galera_cluster
-      - MARIADB_GALERA_MARIABACKUP_USER=backup
-      - MARIADB_GALERA_MARIABACKUP_PASSWORD=backup
-    ports:
-      - "3307:3306"
-    depends_on:
-      - mariadb-galera1
-    networks:
-      - galera_network
 
-  mariadb-galera3:
-    image: bitnami/mariadb-galera:latest
-    environment:
-      - MARIADB_ROOT_PASSWORD=supertajneheslo
-      - MARIADB_GALERA_CLUSTER_NAME=galera_cluster
-      - MARIADB_GALERA_MARIABACKUP_USER=backup
-      - MARIADB_GALERA_MARIABACKUP_PASSWORD=backup
-    ports:
-      - "3308:3306"
-    depends_on:
-      - mariadb-galera1
-    networks:
-      - galera_network
+  -------------------------------------------
 
-networks:
-  galera_network:
-    driver: bridge
+
+  docker run -d --name mariadb-galera-1 --link mariadb-galera-0:mariadb-galera \
+  -e MARIADB_GALERA_CLUSTER_NAME=galera_cluster \
+  -e MARIADB_GALERA_CLUSTER_ADDRESS=gcomm://mariadb-galera:4567,0.0.0.0:4567 \
+  -e MARIADB_GALERA_MARIABACKUP_USER=mariabackup_user \
+  -e MARIADB_GALERA_MARIABACKUP_PASSWORD=mariabackup_password \
+  -e MARIADB_ROOT_PASSWORD=supertajneheslo \
+  -e MARIADB_REPLICATION_USER=replica \
+  -e MARIADB_REPLICATION_PASSWORD=replica_heslo \
+  -p 3334:3306 \
+  bitnami/mariadb-galera:latest
+
+
+  -----------------------------------------------
+
+
+  docker run -d --name mariadb-galera-2 --link mariadb-galera-0:mariadb-galera \
+  -e MARIADB_GALERA_CLUSTER_NAME=galera_cluster \
+  -e MARIADB_GALERA_CLUSTER_ADDRESS=gcomm://mariadb-galera:4567,0.0.0.0:4567 \
+  -e MARIADB_GALERA_MARIABACKUP_USER=my_mariabackup_user \
+  -e MARIADB_GALERA_MARIABACKUP_PASSWORD=my_mariabackup_password \
+  -e MARIADB_ROOT_PASSWORD=supertajneheslo \
+  -e MARIADB_REPLICATION_USER=replica \
+  -e MARIADB_REPLICATION_PASSWORD=replica_heslo \
+  -p 3335:3306 \
+  bitnami/mariadb-galera:latest
