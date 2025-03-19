@@ -5,8 +5,7 @@ services:
     image: bitnami/mariadb:latest
     environment:
       - MARIADB_ROOT_PASSWORD=supertajneheslo
-      - MARIADB_REPLICATION_USER=replica
-      - MARIADB_REPLICATION_PASSWORD=replica
+      - MARIADB_REPLICATION_MODE=master
     ports:
       - "3307:3306"  # Port 3307 na hostiteli bude směřovat do 3306 v kontejneru
     networks:
@@ -16,8 +15,6 @@ services:
     image: bitnami/mariadb:latest
     environment:
       - MARIADB_ROOT_PASSWORD=supertajneheslo
-      - MARIADB_REPLICATION_USER=replica
-      - MARIADB_REPLICATION_PASSWORD=replica
     ports:
       - "3308:3306"  # Port 3308 na hostiteli bude směřovat do 3306 v kontejneru
     networks:
